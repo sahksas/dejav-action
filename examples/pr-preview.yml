@@ -1,0 +1,30 @@
+name: dejav PR tests
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  dejav:
+    # GitHub passes no secrets to pull requests from forks. Skip them instead of
+    # failing, and never switch to pull_request_target to get the secret.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: sahksas/dejav-action@v1
+        with:
+          api-key: ${{ secrets.DEJAV_API_KEY }}
+          project-id: your-project-id
+          target-url: https://pr-${{ github.event.pull_request.number }}.preview.example.com
+
+      - name: Upload the JUnit results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: dejav-junit-results
+          path: dejav-results.xml
+          if-no-files-found: ignore
+          retention-days: 7

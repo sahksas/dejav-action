@@ -1,0 +1,47 @@
+name: dejav run
+description: Start a dejav run, wait for it, write JUnit results, and report the outcome as a GitHub check.
+author: dejav
+inputs:
+  api-key:
+    description: dejav API key with only the execute and read permissions, limited to the project. Pass it from a secret.
+    required: true
+  project-id:
+    description: ID of the dejav project to run.
+    required: true
+  base-url:
+    description: dejav base URL.
+    default: https://dejav.io
+  test-profile-id:
+    description: Test profile to run with. The project's default test profile is used when empty.
+    default: ""
+  target-url:
+    description: URL to test instead of the test profile's target URL, for example the PR preview deployment.
+    default: ""
+  idempotency-key:
+    description: Key that reuses the run already started with the same key. Empty means one key per repository, commit, test profile, and target URL.
+    default: ""
+  timeout-seconds:
+    description: Seconds to wait for the run to finish.
+    default: "1800"
+  poll-interval-seconds:
+    description: Seconds between status checks.
+    default: "15"
+  junit-path:
+    description: File to write the JUnit XML results to. Empty skips the JUnit results.
+    default: dejav-results.xml
+  check-name:
+    description: Name of the GitHub check.
+    default: dejav
+  github-token:
+    description: "Token used to create the GitHub check with the outcome. Needs `permissions: checks: write`."
+    default: ${{ github.token }}
+outputs:
+  outcome:
+    description: passed, failed, incomplete, timed_out, stopped, error, or rejected.
+  run-id:
+    description: ID of the dejav run.
+  run-url:
+    description: URL of the run page in dejav.
+runs:
+  using: node24
+  main: dist/index.js
